@@ -25,6 +25,39 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+"""
+# A generated repository that exposes (if possible) the current repo's HEAD comit.
+
+## `MODULE.bazel`
+
+```
+bazel_dep(
+    name = "com_github_bcsgh_status_repository",
+    version = ...,
+)
+
+status_repository = use_repo_rule("@com_github_bcsgh_status_repository//status_repository:repo.bzl", "status_repository")
+
+status_repository(
+    name = "workspace_status",
+    alt_git_commit = "<<UNKNOWN>>",
+)
+```
+
+## Usage
+
+```
+load("@workspace_status//:git.bzl", "GIT")
+
+cc_library(
+    name = "version",
+    hdrs = ["version.h"],
+    srcs = ["version.cc"],
+    local_defines = ["GIT_COMMIT=%s" % GIT],
+)
+```
+"""
+
 _STATUS_REPO_BUILD_TPL = """
 load("@bazel_skylib//rules:common_settings.bzl", "BuildSettingInfo", "string_setting")
 """
