@@ -25,10 +25,11 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+load("@rules_shell//shell:sh_test.bzl", "sh_test")
 load("@workspace_status//:git.bzl", "GIT")
 
 def status_repository_suite(name):
-    native.sh_test(
+    sh_test(
         name = "status_repository_basic",
         srcs = ["not_empty.sh"],
         args = [GIT],

@@ -95,7 +95,6 @@ def _status_repository_impl(ctx):
 
     return
 
-
 status_repository = repository_rule(
     doc = """Create a repository that contains bits of information collected
        from the workspace that's not otherwise avalable to build rules.
@@ -107,15 +106,15 @@ status_repository = repository_rule(
 
        - `//:git-commit`: The current git commit.
     """,
-
+    #
     implementation = _status_repository_impl,
     local = True,
     configure = True,
-
+    #
     attrs = {
-        "alt_git_commit": attr.string(doc="The value to use for :git-commit if the real value isn't avalable."),
+        "alt_git_commit": attr.string(doc = "The value to use for :git-commit if the real value isn't avalable."),
         "_git_head": attr.label_list(default = [
             "@//:.git/HEAD",  # force update if git's head updates.
         ]),
-    }
+    },
 )
