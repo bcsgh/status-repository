@@ -1,4 +1,4 @@
-# Copyright (c) 2018, Benjamin Shropshire,
+# Copyright (c) 2025, Benjamin Shropshire,
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,22 +25,40 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-load(":status_repository_test.bzl", "status_repository_suite")
-load(":git_stamp_test.bzl", "git_stamp_suite")
+load("@bazel_skylib//rules:build_test.bzl", "build_test")
+load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
+load("@com_github_bcsgh_fail_test//fail_test:fail_test.bzl", "fail_test")
+load("//status_repository:git_stamp.bzl", "git_stamp")
 
-test_suite(
-    name = "ci",
-    tests = [
-        ":status_repository_test",
-    ],
-)
+def git_stamp_suite(name):
+    git_stamp(
+        name = "git_stamp_basic",
+        tpl = "git_stamp_basic.tpl",
+        out = "git_stamp_basic.test",
+    )
 
-######## status_repository
+    build_test(
+        name = "git_stamp_build_test",
+        targets = ["git_stamp_basic.test"],
+    )
 
-status_repository_suite(
-    name = "status_repository_test",
-)
+    diff_test(
+        name = "git_stamp_diff_test",
+        file1 = "git_stamp_basic.test",
+        file2 = "git_stamp_basic.tpl",
+        tags = ["manual"],  # Expected to fail so don't run normaly.
+    )
 
-git_stamp_suite(
-    name = "git_stamp_test",
-)
+    fail_test(
+        name = "test_failing_test",
+        msgs = ["Hello COMMIT!"],
+        test = ":git_stamp_diff_test",
+    )
+
+    # Suit
+    native.test_suite(
+        name = name,
+        tests = [
+            ":git_stamp_build_test",
+        ],
+    )

@@ -1,4 +1,4 @@
-# Copyright (c) 2018, Benjamin Shropshire,
+# Copyright (c) 2023, Benjamin Shropshire,
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,22 +25,36 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-load(":status_repository_test.bzl", "status_repository_suite")
-load(":git_stamp_test.bzl", "git_stamp_suite")
+"""
+# Bazle/skylark rule(s) to instatiate a template with the current git commit.
+"""
 
-test_suite(
-    name = "ci",
-    tests = [
-        ":status_repository_test",
-    ],
-)
+load("@bazel_skylib//rules:common_settings.bzl", "BuildSettingInfo")
 
-######## status_repository
+def _fit_stamp_impl(ctx):
+    if ctx.attr.pattern == "":
+        fail("patern must not be null")
 
-status_repository_suite(
-    name = "status_repository_test",
-)
+    out = ctx.actions.declare_file(ctx.outputs.out.basename)
 
-git_stamp_suite(
-    name = "git_stamp_test",
+    ctx.actions.expand_template(
+        template=ctx.file.tpl,
+        output=out,
+        substitutions={
+            ctx.attr.pattern: ctx.attr.git_commit[BuildSettingInfo].value,
+        },
+    )
+    return [DefaultInfo(files=depset([out]))]
+
+
+git_stamp = rule(
+    doc = """Insert the current git commit hash into a template.""",
+    #
+    implementation = _fit_stamp_impl,
+    attrs = {
+        "out": attr.output(mandatory=True),
+        "tpl": attr.label(allow_single_file=True, mandatory=True),
+        "pattern": attr.string(default="COMMIT"),
+        "git_commit": attr.label(default="@workspace_status//:git-commit"),
+    },
 )
