@@ -37,9 +37,18 @@ def git_stamp_suite(name):
         out = "git_stamp_basic.test",
     )
 
+    git_stamp(
+        name = "git_stamp_nop",
+        tpl = "not_empty.sh",
+        out = "not_empty.same",
+    )
+
     build_test(
         name = "git_stamp_build_test",
-        targets = ["git_stamp_basic.test"],
+        targets = [
+            ":git_stamp_basic",
+            ":git_stamp_nop",
+        ],
     )
 
     diff_test(
@@ -55,10 +64,17 @@ def git_stamp_suite(name):
         test = ":git_stamp_diff_test",
     )
 
+    diff_test(
+        name = "git_stamp_nop_test",
+        file1 = "not_empty.sh",
+        file2 = "not_empty.same",
+    )
+
     # Suit
     native.test_suite(
         name = name,
         tests = [
             ":git_stamp_build_test",
+            ":git_stamp_nop_test",
         ],
     )
